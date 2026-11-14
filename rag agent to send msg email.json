@@ -1,0 +1,373 @@
+{
+  "name": "rag agent to send msg email",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f61de79a-349c-4df2-b0b3-d65da810ee83",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        -64
+      ],
+      "id": "6845946d-cc76-4021-8632-e990e8262939",
+      "name": "Webhook",
+      "webhookId": "f61de79a-349c-4df2-b0b3-d65da810ee83"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.query }}",
+        "options": {
+          "systemMessage": "You are a helpful course assistant. Answer the user's question using the information available in the connected Pinecone knowledge base. If the"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -16,
+        -64
+      ],
+      "id": "da0dede7-bfb1-4132-a980-347e3387d4a7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        144
+      ],
+      "id": "22d6e408-9c9f-4e82-afc0-a28b249f95d4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "aZXYGahql9ZrlXVO",
+          "name": "OpenAI account 306"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        320
+      ],
+      "id": "4303ff21-6f81-4b1a-a32e-029fb4e7abf1",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "aZXYGahql9ZrlXVO",
+          "name": "OpenAI account 306"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "tinny4958@gmail.com",
+        "subject": "=course information{{ $('Webhook').item.json.query }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        -64
+      ],
+      "id": "fabb1f88-dec0-4b28-8f92-3e0180d08dac",
+      "name": "Send a message",
+      "webhookId": "d77732ec-cb02-4e22-8dad-7e8d39ba4491",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5BRLGqPKDZYRHN4r",
+          "name": "Gmail account 166"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_0WwmgOnSCNCa6Bw_UPlWDsM1TV6EQgIpyfy0LZN8DU",
+          "mode": "list",
+          "cachedResultName": "save user data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_0WwmgOnSCNCa6Bw_UPlWDsM1TV6EQgIpyfy0LZN8DU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_0WwmgOnSCNCa6Bw_UPlWDsM1TV6EQgIpyfy0LZN8DU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $('Webhook').item.json.body.name }}",
+            "Email Address": "={{ $('Webhook').item.json.body.email }}",
+            "Phone Number": "={{ $('Webhook').item.json.body.phone }}",
+            "Your Question": "={{ $('Webhook').item.json.body.query }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Your Question",
+              "displayName": "Your Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        800,
+        64
+      ],
+      "id": "145d975c-e258-4752-9ee4-4734bf4c3460",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0AZPjQQi7iHy2zIQ",
+          "name": "Google Sheets account 199"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "retrieve data when the user ask for relevent data about course information file",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "tinny",
+          "mode": "list",
+          "cachedResultName": "tinny"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        144
+      ],
+      "id": "ae57ea94-7ede-4b6b-b391-118cbadc973a",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "f5YXsFmKvHqOfLdQ",
+          "name": "Pinecone account 76"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        352,
+        -64
+      ],
+      "id": "a6e41444-2a62-48c2-8924-0847827afb06",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-f2ty.srv1670697.hstgr.cloud",
+            "user-agent": "node",
+            "content-length": "118",
+            "accept": "*/*",
+            "accept-encoding": "br, gzip, deflate",
+            "accept-language": "*",
+            "content-type": "application/json",
+            "sec-fetch-mode": "cors",
+            "x-forwarded-for": "34.158.74.168",
+            "x-forwarded-host": "n8n-f2ty.srv1670697.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "srv1670697",
+            "x-real-ip": "34.158.74.168"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "name": "Tinny",
+            "email": "tinny4958@gmail.com",
+            "phone": "01722666986",
+            "query": "what is the first topic in this course?"
+          },
+          "webhookUrl": "https://n8n-f2ty.srv1670697.hstgr.cloud/webhook/f61de79a-349c-4df2-b0b3-d65da810ee83",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6a51ceb5-731a-47a6-9098-c28ba39df667",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ab95a641c1b7099ef407af1cf01df77e8f73a8620f3dfa9286ddaad6ae2c066b"
+  },
+  "nodeGroups": [],
+  "id": "sPvPC52rCuyeKUcC",
+  "tags": [
+    {
+      "updatedAt": "2026-06-21T13:30:36.525Z",
+      "createdAt": "2026-06-21T13:30:36.525Z",
+      "id": "NV8AFwgzIvoXHzha",
+      "name": "Active"
+    }
+  ]
+}
